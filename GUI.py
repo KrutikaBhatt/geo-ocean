@@ -10,9 +10,10 @@ from PIL import ImageTk, Image, ImageDraw
 import os.path
 import numpy as np
 from time import strftime
-from functions.HoverInfo import HoverInfo
-from functions.ToolTip import CreateToolTip
 from tkinter import ttk
+from style_functions.HoverInfo import HoverInfo
+from style_functions.ToolTip import CreateToolTip
+from file_functions.select_local_file import FileSelection
 
 window=tk.Tk()
 window.title("Oceanographic Software Toolkit")
@@ -38,10 +39,11 @@ def recent_projects():
 
 
 #  MENUBAR 
+filecommands = FileSelection()
 
 menubar=Menu(window)
 filemenu=Menu(menubar,tearoff=0)
-filemenu.add_command(label="Open File",command=open_file)
+filemenu.add_command(label="Open File",command=filecommands.newfile)
 filemenu.add_command(label="Recent projects",command=recent_projects)
 filemenu.add_separator()
 filemenu.add_command(label="Exit", command=window.quit)
@@ -96,6 +98,8 @@ CreateToolTip(menu_button6, text = "Select an area")
 # Seperators and orientation
 separator = ttk.Separator(window, orient='vertical')
 separator.place(relx=0.47, rely=0, relwidth=0.2, relheight=1)
+DisplayScreen = tk.Canvas(window, bg = "gainsboro", height = 700, width = 400)
+DisplayScreen.place(relx = 0.46, rely = 0, relwidth = 1)
 
 window.config(menu = menubar)
 window.mainloop()
