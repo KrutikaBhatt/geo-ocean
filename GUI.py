@@ -19,32 +19,41 @@ window=tk.Tk()
 window.title("Oceanographic Software Toolkit")
 window.geometry('1100x700')
 window.resizable(True, True)
+window.update_idletasks()
+
+__width__ = tk.IntVar()
+__height__ = tk.IntVar()
+__width__.set(window.winfo_width())
+__height__.set(window.winfo_height())
+
+def OnResize(event):
+    __width__.set(window.winfo_width())
+    __height__.set(window.winfo_height())
+    FileScreen.config(width=__width__.get()*0.5)
+    PlotScreen.config(height=__height__.get()*0.45)
+
+
 
 # Loading the images
-folder_icon = PhotoImage(file = r"icons\folder.png")
-cursor_icon = PhotoImage(file = r"icons\hand_cursor.png")
-pointer_icon = PhotoImage(file = r"icons\pointer.png")
-zoomIn = PhotoImage(file = r"icons\zoomIn.png")
-zoomOut = PhotoImage(file = r"icons\zoomOut.png")
-select_screen = PhotoImage(file = r"icons\select.png")
+folder_icon = PhotoImage(file = "icons/folder.png")
+cursor_icon = PhotoImage(file = r"icons/hand_cursor.png")
+pointer_icon = PhotoImage(file = r"icons/pointer.png")
+zoomIn = PhotoImage(file = r"icons/zoomIn.png")
+zoomOut = PhotoImage(file = r"icons/zoomOut.png")
+select_screen = PhotoImage(file = r"icons/select.png")
 
 # Loading Font
-myFont = font.Font(family='Helvetica',size=13, weight='bold')
+myFont = font.Font(family='Helvetica',size=10, weight='bold')
 
-def open_file():
-    pass
     
-def recent_projects():
-    pass
-
-
 #  MENUBAR 
-filecommands = FileSelection()
-
 menubar=Menu(window)
 filemenu=Menu(menubar,tearoff=0)
-filemenu.add_command(label="Open File",command=filecommands.newfile)
-filemenu.add_command(label="Recent projects",command=recent_projects)
+filemenu.add_command(label="Open File",command=None)
+
+subMenu = tk.Menu(filemenu,tearoff=0)
+filemenu.add_cascade(label="Recent Projects",menu=subMenu)
+
 filemenu.add_separator()
 filemenu.add_command(label="Exit", command=window.quit)
 menubar.add_cascade(label ='File', menu = filemenu)
@@ -96,10 +105,37 @@ CreateToolTip(menu_button6, text = "Select an area")
 # Ending Menu buttons
 
 # Seperators and orientation
-separator = ttk.Separator(window, orient='vertical')
-separator.place(relx=0.47, rely=0, relwidth=0.2, relheight=1)
-DisplayScreen = tk.Canvas(window, bg = "gainsboro", height = 700, width = 400)
-DisplayScreen.place(relx = 0.46, rely = 0, relwidth = 1)
+separator = ttk.Separator(window, orient='horizontal')
+separator.place(relx=0, y=38, relwidth=1)
+DisplayScreen = tk.Canvas(window, bg = "gainsboro")
+DisplayScreen.place(relx = 0, y = 40, relwidth = 1,relheight=1)
+
+
+# PANELS 
+main_panel = tk.PanedWindow(DisplayScreen,bd=2,bg="grey")
+main_panel.pack(fill=tk.BOTH, expand=1)
+
+FileScreen = tk.Frame(main_panel, bg = "gainsboro",width=__width__.get()*0.5)
+main_panel.add(FileScreen)
+
+panel2 = tk.PanedWindow(main_panel,orient=tk.VERTICAL,bd=2,relief="raised",bg="grey")
+main_panel.add(panel2)
+
+PlotsLabel = tk.Label(text="PLOTS",font=myFont,padx=3,pady=3,background="lightblue",fg="black")
+panel2.add(PlotsLabel)
+# Add to Plot Screen here
+
+PlotScreen = tk.Frame(panel2, bg = "gainsboro",height=__height__.get()*0.45)
+statsLabel = tk.Label(text="STATISTICS",font=myFont,padx=3,pady=3,background="lightblue",fg="black")
+panel2.add(PlotScreen)
+panel2.add(statsLabel)
+# Add to statistic screen here
+
+bottom = tk.Label(panel2,text="Bottom")
+ConsoleScreen = tk.Canvas(panel2, bg = "gainsboro")
+panel2.add(ConsoleScreen)
+
 
 window.config(menu = menubar)
+window.bind("<Configure>",OnResize)
 window.mainloop()
