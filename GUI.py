@@ -113,10 +113,12 @@ DisplayScreen.place(relx = 0, y = 40, relwidth = 1,relheight=1)
 
 # PANELS 
 main_panel = tk.PanedWindow(DisplayScreen,bd=2,bg="grey")
-main_panel.pack(fill=tk.BOTH, expand=1)
 
-FileScreen = tk.Frame(main_panel, bg = "gainsboro",width=__width__.get()*0.5)
+FileScreen = LabelFrame(main_panel, text="File View", relief=GROOVE, bg = "gainsboro",width=__width__.get()*0.5,padx=3,pady=3)  # do NOT pack it yet!
+FileScreen.pack()
+FileScreen.pack_propagate(False)
 main_panel.add(FileScreen)
+main_panel.pack(fill=tk.BOTH, expand=1)
 
 panel2 = tk.PanedWindow(main_panel,orient=tk.VERTICAL,bd=2,relief="raised",bg="grey")
 main_panel.add(panel2)
