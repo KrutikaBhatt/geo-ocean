@@ -32,7 +32,13 @@ def OnResize(event):
     FileScreen.config(width=__width__.get()*0.5)
     PlotScreen.config(height=__height__.get()*0.45)
 
-
+def select_file():
+    filename = filedialog.askopenfilename(initialdir = '/',title = 'Select a dataset',filetypes = (('NC','*.nc'),('All files','*.*')))
+    if os.path.exists(filename):
+        filelabelname = Label(FileScreen, text=filename, compound=LEFT, font=myFont)
+        filelabelname.pack(ipady=10, ipadx=10, anchor=W)
+    else:
+        response=tk.messagebox.showinfo("Error","Please select the dataset again")
 
 # Loading the images
 folder_icon = PhotoImage(file = "icons/folder.png")
@@ -49,7 +55,7 @@ myFont = font.Font(family='Helvetica',size=10, weight='bold')
 #  MENUBAR 
 menubar=Menu(window)
 filemenu=Menu(menubar,tearoff=0)
-filemenu.add_command(label="Open File",command=None)
+filemenu.add_command(label="Open File",command=select_file)
 
 subMenu = tk.Menu(filemenu,tearoff=0)
 filemenu.add_cascade(label="Recent Projects",menu=subMenu)
