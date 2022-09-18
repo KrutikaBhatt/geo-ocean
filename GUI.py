@@ -56,7 +56,7 @@ def select_file():
         t = Text(ConsoleScreen,wrap = NONE,xscrollcommand = scrollX.set,yscrollcommand = scrollY.set)
 
         for x,y in description.items():
-            desc_name = "  "+str(x)
+            desc_name = "  "+str(x).upper()
             t.insert(END,desc_name+"\n")
             t.insert(END,"      "+str(y)+"\n")
             
