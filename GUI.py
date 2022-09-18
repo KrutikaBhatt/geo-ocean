@@ -14,6 +14,7 @@ from tkinter import ttk
 from style_functions.HoverInfo import HoverInfo
 from style_functions.ToolTip import CreateToolTip
 from file_functions.select_local_file import FileSelection,describeFile
+from plot_functions.plot import basePlot
 
 window=tk.Tk()
 window.title("Oceanographic Software Toolkit")
@@ -23,13 +24,12 @@ window.update_idletasks()
 
 __width__ = tk.IntVar()
 __height__ = tk.IntVar()
-selectedVariable = IntVar()
 __width__.set(window.winfo_width())
 __height__.set(window.winfo_height())
 
 # Additional Variables
 filepath = ""
-
+selectedVariable = StringVar()
 
 def OnResize(event):
     __width__.set(window.winfo_width())
@@ -50,19 +50,24 @@ def select_file():
         for i in variables:
             for x,y in i.items():
                 labelname = "  "+str(x)+str(y)
-                thisRadio = Radiobutton(FileScreen,text=labelname,compound=LEFT,font=fileFont,bg="gainsboro",variable = selectedVariable,value=x)
+                thisRadio = Radiobutton(FileScreen,text=labelname,compound=LEFT,font=fileFont,bg="gainsboro",variable = selectedVariable,value=str(x))
                 thisRadio.pack(ipady=1, ipadx=40, anchor=W)
 
         t = Text(ConsoleScreen,wrap = NONE,xscrollcommand = scrollX.set,yscrollcommand = scrollY.set)
 
         for x,y in description.items():
-            desc_name = "  "+str(x).upper()
+            desc_name = "  "+str(x)
             t.insert(END,desc_name+"\n")
             t.insert(END,"      "+str(y)+"\n")
             
         t.pack(side=TOP, fill=X)
     else:
         response=tk.messagebox.showinfo("Error","Please select the dataset again")
+
+def plot_base_graph():
+    filename = filepath.split('/')[len(filepath.split('/'))-1]
+    variable_to_plot = selectedVariable.get()
+    basePlot(filepath,variable_to_plot,filename)
 
 # Loading the images
 folder_icon = PhotoImage(file = r"icons/folder.png")
@@ -115,7 +120,7 @@ menu_button1=tkinter.Button(window, text="Select File",image = folder_icon, fg="
 menu_button1.pack(side=LEFT, anchor=NW, padx=2, pady=3)
 CreateToolTip(menu_button1, text = "Select File")
 
-menu_button7=tkinter.Button(window, text="Plot a graph",image = plot_icon, fg="black",cursor="hand2",bd=1,bg="gainsboro",font=myFont,command=None)
+menu_button7=tkinter.Button(window, text="Plot a graph",image = plot_icon, fg="black",cursor="hand2",bd=1,bg="gainsboro",font=myFont,command=plot_base_graph)
 menu_button7.pack(side=LEFT, anchor=NW, padx=2, pady=3)
 CreateToolTip(menu_button7, text = "Plot a graph")
 
