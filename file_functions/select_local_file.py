@@ -4,6 +4,7 @@ from tkinter import filedialog,Text
 import os.path
 import numpy as np
 import pickle
+import netCDF4 as nc 
 
 class FileSelection():
     def __init__(self,name=None):
@@ -46,3 +47,12 @@ class FileSelection():
     
     def return_selected_filename(self):
         return self.name
+
+def describeFile(filename):
+    dataset = nc.Dataset(filename)
+    description = dataset.__dict__
+    variables = []
+    for var in dataset.variables.values():
+        variables.append({var.name:var.shape})
+    
+    return description,variables

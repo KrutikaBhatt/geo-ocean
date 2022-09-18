@@ -13,7 +13,7 @@ from time import strftime
 from tkinter import ttk
 from style_functions.HoverInfo import HoverInfo
 from style_functions.ToolTip import CreateToolTip
-from file_functions.select_local_file import FileSelection
+from file_functions.select_local_file import FileSelection,describeFile
 
 window=tk.Tk()
 window.title("Oceanographic Software Toolkit")
@@ -23,8 +23,13 @@ window.update_idletasks()
 
 __width__ = tk.IntVar()
 __height__ = tk.IntVar()
+selectedVariable = IntVar()
 __width__.set(window.winfo_width())
 __height__.set(window.winfo_height())
+
+# Additional Variables
+filepath = ""
+
 
 def OnResize(event):
     __width__.set(window.winfo_width())
@@ -33,24 +38,46 @@ def OnResize(event):
     PlotScreen.config(height=__height__.get()*0.45)
 
 def select_file():
-    filename = filedialog.askopenfilename(initialdir = '/',title = 'Select a dataset',filetypes = (('NC','*.nc'),('All files','*.*')))
-    if os.path.exists(filename):
-        filelabelname = Label(FileScreen, text=filename, compound=LEFT, font=myFont)
+    global filepath
+    filepath = filedialog.askopenfilename(initialdir = '/',title = 'Select a dataset',filetypes = (('NC','*.nc'),('All files','*.*')))
+    if os.path.exists(filepath):
+        filename = filepath.split('/')[len(filepath.split('/'))-1]
+        filelabelname = Label(FileScreen, text="  "+filename,image=file_icon,compound=LEFT, font=fileFont,bg="gainsboro")
         filelabelname.pack(ipady=10, ipadx=10, anchor=W)
+        description,variables = describeFile(filepath)
+        displaylist=[]
+
+        for i in variables:
+            for x,y in i.items():
+                labelname = "  "+str(x)+str(y)
+                thisRadio = Radiobutton(FileScreen,text=labelname,compound=LEFT,font=fileFont,bg="gainsboro",variable = selectedVariable,value=x)
+                thisRadio.pack(ipady=1, ipadx=40, anchor=W)
+
+        t = Text(ConsoleScreen,wrap = NONE,xscrollcommand = scrollX.set,yscrollcommand = scrollY.set)
+
+        for x,y in description.items():
+            desc_name = "  "+str(x)
+            t.insert(END,desc_name+"\n")
+            t.insert(END,"      "+str(y)+"\n")
+            
+        t.pack(side=TOP, fill=X)
     else:
         response=tk.messagebox.showinfo("Error","Please select the dataset again")
 
 # Loading the images
-folder_icon = PhotoImage(file = "icons/folder.png")
+folder_icon = PhotoImage(file = r"icons/folder.png")
 cursor_icon = PhotoImage(file = r"icons/hand_cursor.png")
 pointer_icon = PhotoImage(file = r"icons/pointer.png")
 zoomIn = PhotoImage(file = r"icons/zoomIn.png")
 zoomOut = PhotoImage(file = r"icons/zoomOut.png")
 select_screen = PhotoImage(file = r"icons/select.png")
+file_icon = PhotoImage(file=r"icons/file.png")
+variable_icon = PhotoImage(file=r"icons/grey.png")
+plot_icon = PhotoImage(file=r"icons/plot.png")
 
 # Loading Font
 myFont = font.Font(family='Helvetica',size=10, weight='bold')
-
+fileFont = font.Font(family='Helvetica',size=10)
     
 #  MENUBAR 
 menubar=Menu(window)
@@ -87,6 +114,10 @@ help_.add_command(label ='About Toolkit', command = None)
 menu_button1=tkinter.Button(window, text="Select File",image = folder_icon, fg="black",cursor="hand2",bd=1,bg="gainsboro",font=myFont,command=None)
 menu_button1.pack(side=LEFT, anchor=NW, padx=2, pady=3)
 CreateToolTip(menu_button1, text = "Select File")
+
+menu_button7=tkinter.Button(window, text="Plot a graph",image = plot_icon, fg="black",cursor="hand2",bd=1,bg="gainsboro",font=myFont,command=None)
+menu_button7.pack(side=LEFT, anchor=NW, padx=2, pady=3)
+CreateToolTip(menu_button7, text = "Plot a graph")
 
 menu_button2=tkinter.Button(window, text="Span",image = cursor_icon, fg="black",cursor="hand2",bd=1,bg="gainsboro",font=myFont,command=None)
 menu_button2.pack(side=LEFT, anchor=NW, padx=2, pady=3)
@@ -139,8 +170,16 @@ panel2.add(PlotScreen)
 panel2.add(statsLabel)
 # Add to statistic screen here
 
-bottom = tk.Label(panel2,text="Bottom")
-ConsoleScreen = tk.Canvas(panel2, bg = "gainsboro")
+
+# ConsoleScreen = tk.Canvas(panel2, bg = "gainsboro")
+ConsoleScreen = LabelFrame(panel2, bg = "gainsboro",padx=3,pady=3) 
+ConsoleScreen.pack()
+ConsoleScreen.pack_propagate(False)
+scrollX = Scrollbar(ConsoleScreen, orient = 'horizontal')
+scrollX.pack(side = BOTTOM, fill = X)
+scrollY = Scrollbar(ConsoleScreen)
+scrollY.pack(side = RIGHT, fill = Y)
+
 panel2.add(ConsoleScreen)
 
 
