@@ -52,7 +52,10 @@ def describeFile(filename):
     dataset = nc.Dataset(filename)
     description = dataset.__dict__
     variables = []
+    variable_description = []
+    i = 0
     for var in dataset.variables.values():
         variables.append({var.name:var.shape})
+        variable_description.append({var.name:dataset[var.name]})
     
-    return description,variables
+    return description,variables,variable_description

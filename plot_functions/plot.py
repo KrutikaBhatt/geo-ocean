@@ -40,10 +40,10 @@ cmapnames ={
 
 colormaps = ["thermal","haline","solar","ice","gray","oxy","deep","dense","algae","matter","turbid","speed","amp","tempo","rain","phase","topo","balance","delta","curl","diff","tarn"]
 
-def subset_to_csv(dataset1,filepath):
-    df = dataset1.to_dataframe()
-    filename = filepath.split('/')[len(filepath.split('/'))-1]
-    df.to_csv(f'{filename}.csv')
+def subset_file(dataset1,filepath):
+    filename = "SUBSET_"+filepath.split('/')[len(filepath.split('/'))-1]
+    dataset1.to_netcdf(filename)
+    response=tk.messagebox.showinfo("Sucess",f'The file {filename} is saved successfully')
 
 def basePlot(filepath,variable,title,PlotFrame,vmin=0,vmax=5,colorbar='thermal',longStart="None",longEnd="None",latStart="None",latEnd="None"):
     try:
@@ -60,7 +60,7 @@ def basePlot(filepath,variable,title,PlotFrame,vmin=0,vmax=5,colorbar='thermal',
         plot_variable.plot(x='lon', y='lat', vmin=int(float(vmin)), vmax=int(float(vmax)),cmap=selected_colorbar,ax=plot1)
         plot1.set_title(title)
         plot1.grid()
-        tk.Button(PlotFrame,text="Save file",padx=3,pady=3,fg="black").pack(side=tk.TOP,anchor="ne",pady=(15,0),padx=(0,10),command=threading.Thread(target = subset_to_csv, args=(dataset1,filepath,)).start())
+        tk.Button(PlotFrame,text="Subset",padx=3,pady=3,fg="black",command=lambda:subset_file(dataset1,filepath)).pack(side=tk.TOP,anchor="ne",pady=(15,0),padx=(0,10))
         PlotFrame.config(bg="white")
         canvas = FigureCanvasTkAgg(fig,master= PlotFrame)
         canvas.draw()
@@ -137,4 +137,4 @@ def DrawArray(grid,filepath,variable_to_plot):
     filename = filepath.split('/')[len(filepath.split('/'))-1]
     fileThread = threading.Thread(target = write_into_file, args=(filename,lat,lon,Geo2Dvariable,))
     fileThread.start()
-    
+

@@ -15,7 +15,9 @@ from style_functions.HoverInfo import HoverInfo
 from style_functions.ToolTip import CreateToolTip
 from file_functions.select_local_file import FileSelection,describeFile
 from plot_functions.plot import basePlot,DrawArray
-import threading
+from file_functions.manipulation import concatinate
+import threading 
+from advanced_functions.anamolies import CalculateAnamolies
 
 window=tk.Tk()
 window.title("Oceanographic Software Toolkit")
@@ -47,6 +49,9 @@ LongEnd = tk.StringVar()
 title = tk.StringVar()
 VMIN = tk.StringVar()
 VMAX = tk.StringVar()
+groupby = tk.StringVar()
+dim = tk.StringVar()
+
 clicked.set(colormaps[0])
 LatStart.set("None")
 LatEnd.set("None")
@@ -54,6 +59,12 @@ LongStart.set("None")
 LongEnd.set("None")
 VMIN.set("0")
 VMAX.set("5")
+
+# Concatinate variables
+folderpath = tk.StringVar()
+destinationfilename = tk.StringVar()
+concat_dim = tk.StringVar()
+product_for_anomoly = tk.StringVar()
 
 def OnResize(event):
     window.update_idletasks()
@@ -75,8 +86,7 @@ def select_file():
         title.set(filename)
         filelabelname = Label(FileScreen, text="  "+filename,image=file_icon,compound=LEFT, font=fileFont,bg="gainsboro")
         filelabelname.pack(ipady=10, ipadx=10, anchor=W)
-        description,variables = describeFile(filepath)
-        displaylist=[]
+        description,variables,variable_description = describeFile(filepath)
 
         for i in variables:
             for x,y in i.items():
@@ -90,7 +100,12 @@ def select_file():
             desc_name = "  "+str(x)
             t.insert(END,desc_name+"\n")
             t.insert(END,"      "+str(y)+"\n")
-            
+        
+        t.insert(END,"\n  --- Variable Description ---\n")
+        for descItems in variable_description:
+            for x,y in descItems.items():
+                t.insert(END,str(x)+"\n")
+                t.insert(END,"      "+str(y)+"\n")
         t.pack(side=TOP, fill=X)
     else:
         response=tk.messagebox.showinfo("Error","Please select the dataset again")
@@ -102,6 +117,13 @@ def displayColorMap(event):
     
 
 def plotModal():
+    clicked.set(colormaps[0])
+    LatStart.set("None")
+    LatEnd.set("None")
+    LongStart.set("None")
+    LongEnd.set("None")
+    VMIN.set("0")
+    VMAX.set("5")
     global imageLabel
     global pop
     pop = tk.Toplevel(window,bg="white")
@@ -164,6 +186,81 @@ def ViewArray():
     grid_window.geometry("500x500")
     DrawArray(grid_window,filepath,variable_to_plot)
 
+def select_folder_location():
+    folderselect = tk.filedialog.askdirectory()
+    folderpath.set(folderselect)
+
+def concatinate_helper():
+    concatinate(folderpath.get(),destinationfilename.get(),concat_dim.get())
+
+def concatinateFiles():
+    folderpath.set("")
+    filemerger = tk.Toplevel(window,bg="white")
+    filemerger.title("Concatinate files")
+    filemerger.geometry("650x300")
+    tk.Label(filemerger,text="Destination Filename",bg="white").place(x=30,y=30)
+    tk.Entry(filemerger,width=40,textvariable=destinationfilename).place(x=160,y=30)
+    
+    tk.Label(filemerger,text="Directory",bg="white").place(x=30,y=70)
+    tk.Entry(filemerger,width=60,textvariable=folderpath).place(x=100,y=70)
+    tk.Button(filemerger, text="Select File",image = pathselect, fg="black",cursor="hand2",bd=1,bg="gainsboro",font=myFont,command=select_folder_location).place(x=450,y=71)
+    
+    tk.Label(filemerger,text="Along axis",bg="white").place(x=30,y=110)
+    tk.Entry(filemerger,width=20,textvariable=concat_dim).place(x=110,y=110)
+    
+    tk.Button(filemerger, text="Concatinate",fg="black",cursor="hand2",bd=1,bg="lightblue",font=myFont,command=concatinate_helper,padx=3,pady=3).place(x=280,y=200)
+
+def calculateAnalmolies():
+    CalculateAnamolies(destinationfilename.get(),folderpath.get(),groupby.get(),dim.get(),product_for_anomoly.get())
+
+def Anamolies_popup():
+    anamoliesPop = tk.Toplevel(window,bg="white")
+    anamoliesPop.title("Calculate Anamolies")
+    anamoliesPop.geometry("650x300")
+    destinationfilename.set("")
+    folderpath.set("")
+    product_for_anomoly.set("")
+    
+    tk.Label(anamoliesPop,text="Destination Filename",bg="white").place(x=30,y=30)
+    tk.Entry(anamoliesPop,width=40,textvariable=destinationfilename).place(x=160,y=30)
+    
+    tk.Label(anamoliesPop,text="Directory",bg="white").place(x=30,y=70)
+    tk.Entry(anamoliesPop,width=60,textvariable=folderpath).place(x=100,y=70)
+    tk.Button(anamoliesPop, text="Select File",image = pathselect, fg="black",cursor="hand2",bd=1,bg="gainsboro",font=myFont,command=select_folder_location).place(x=450,y=71)
+    
+    tk.Label(anamoliesPop,text="Group By",bg="white").place(x=30,y=110)
+    tk.Entry(anamoliesPop,width=20,textvariable=groupby).place(x=110,y=110)
+    
+    tk.Label(anamoliesPop,text="Dimension",bg="white").place(x=30,y=150)
+    tk.Entry(anamoliesPop,width=20,textvariable=dim).place(x=110,y=150)
+    
+    tk.Label(anamoliesPop,text="Product",bg="white").place(x=30,y=190)
+    tk.Entry(anamoliesPop,width=20,textvariable=product_for_anomoly).place(x=110,y=190)
+    
+    tk.Button(anamoliesPop, text="Calculate",fg="black",cursor="hand2",bd=1,bg="lightblue",font=myFont,command=calculateAnalmolies,padx=3,pady=3).place(x=280,y=240)
+
+
+def get_all_children(Screen):
+    _list = Screen.winfo_children()
+    for item in _list:
+        if item.winfo_children():
+            _list.extend(item.winfo_children())
+            
+    return _list
+
+def clearAll():
+    file_widget_list = get_all_children(FileScreen)
+    for item in file_widget_list:
+        item.pack_forget()
+        
+    plot_widget_list = get_all_children(PlotScreen)
+    for item in plot_widget_list:
+        item.pack_forget()
+        
+    console_widget_list = get_all_children(ConsoleScreen)
+    for item in console_widget_list:
+        item.pack_forget()
+
 # Loading the images
 folder_icon = PhotoImage(file = r"icons/folder.png")
 cursor_icon = PhotoImage(file = r"icons/hand_cursor.png")
@@ -176,7 +273,7 @@ variable_icon = PhotoImage(file=r"icons/grey.png")
 plot_icon = PhotoImage(file=r"icons/plot.png")
 array_icon = PhotoImage(file=r'icons/grid.png')
 clear_icon = PhotoImage(file=r'icons/clear.png')
-
+pathselect = PhotoImage(file=r'icons/pathselect.png')
 # Loading Font
 myFont = font.Font(family='Helvetica',size=10, weight='bold')
 fileFont = font.Font(family='Helvetica',size=10)
@@ -201,6 +298,14 @@ edit.add_command(label ='Paste', command = None)
 edit.add_command(label ='Select All', command = None)
 edit.add_separator()
 edit.add_command(label ='Find...', command = None)
+
+
+# Adding the Advanced Menu Bar
+advance = Menu(menubar, tearoff = 0)
+menubar.add_cascade(label ='Advance', menu = advance)
+advance.add_command(label ='Concatinate', command = concatinateFiles)
+advance.add_command(label ='Calculate Anamolies', command = Anamolies_popup)
+
 
 # Adding Help Menu
 help_ = Menu(menubar, tearoff = 0)
@@ -245,7 +350,7 @@ menu_button8=tkinter.Button(window, text="Array",image = array_icon, fg="black",
 menu_button8.pack(side=LEFT, anchor=NW, padx=2, pady=3)
 CreateToolTip(menu_button8, text = "View the array components")
 
-menu_button9=tkinter.Button(window, text="Clear All",image = clear_icon, fg="black",cursor="hand2",bd=1,bg="gainsboro",font=myFont,command=None)
+menu_button9=tkinter.Button(window, text="Clear All",image = clear_icon, fg="black",cursor="hand2",bd=1,bg="gainsboro",font=myFont,command=clearAll)
 menu_button9.pack(side=LEFT, anchor=NW, padx=2, pady=3)
 CreateToolTip(menu_button9, text = "Clear all")
 # Ending Menu buttons
@@ -278,10 +383,6 @@ PlotsLabel.pack(side=TOP,fill=X)
 PlotScreen.pack_propagate(False)
 panel2.add(PlotScreen)
 
-# Add to statistic screen here
-
-
-# ConsoleScreen = tk.Canvas(panel2, bg = "gainsboro")
 window.update_idletasks()
 ConsoleScreen = Label(panel2, bg = "gainsboro",padx=3,pady=3) 
 ConsoleScreen.pack()
