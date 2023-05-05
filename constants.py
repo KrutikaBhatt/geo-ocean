@@ -1,0 +1,3 @@
+authorName = ''
+logFolder = ''
+downloadFolder = ''

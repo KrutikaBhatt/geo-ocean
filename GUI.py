@@ -261,6 +261,25 @@ def clearAll():
     for item in console_widget_list:
         item.pack_forget()
 
+
+def configure():
+    ConfigurePop = tk.Toplevel(window,bg="white")
+    ConfigurePop.title("Configure constants")
+    ConfigurePop.geometry("400x300")
+
+    tk.Label(ConfigurePop,text="Author Name: ",bg="white").place(x=20,y=20)
+    tk.Entry(ConfigurePop,textvariable=LatStart).place(x=110,y=20)
+
+    tk.Label(ConfigurePop,text="Log folder destination: ",bg="white").place(x=20,y=60)
+    tk.Entry(ConfigurePop,textvariable=LatStart).place(x=150,y=60)
+    tk.Button(ConfigurePop, text="Select",image = pathselect, fg="black",cursor="hand2",bd=1,bg="gainsboro",font=myFont,command=select_folder_location).place(x=270,y=60)
+    
+    tk.Label(ConfigurePop,text="Download folder destination: ",bg="white").place(x=20,y=100)
+    tk.Entry(ConfigurePop,textvariable=LatStart).place(x=190,y=100)
+    tk.Button(ConfigurePop, text="Select",image = pathselect, fg="black",cursor="hand2",bd=1,bg="gainsboro",font=myFont,command=select_folder_location).place(x=300,y=100)
+    
+    # folder_selected = filedialog.askdirectory()
+
 # Loading the images
 folder_icon = PhotoImage(file = r"icons/folder.png")
 cursor_icon = PhotoImage(file = r"icons/hand_cursor.png")
@@ -305,6 +324,7 @@ advance = Menu(menubar, tearoff = 0)
 menubar.add_cascade(label ='Advance', menu = advance)
 advance.add_command(label ='Concatinate', command = concatinateFiles)
 advance.add_command(label ='Calculate Anamolies', command = Anamolies_popup)
+advance.add_command(label = 'Configuration', command=configure)
 
 
 # Adding Help Menu

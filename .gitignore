@@ -4,3 +4,11 @@ client/backend/node_modules
 package-lock.json
 
 venv
+__pycache__
+./__pycache__
+/__pycache__
+
+/file_functions/__pycache__
+/plot_functions/__pycache__
+/style_functions/__pycache__
+
